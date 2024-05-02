@@ -36,6 +36,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="parentId != null and parentId != 0">
 			AND parent_id = #{parentId}
 		</if>
+		<if test="parentName != null and parentName != ''">
+			AND parent_name like concat('%', #{parentName}, '%')
+		</if>
 		<if test="deptName != null and deptName != ''">
 			AND dept_name like concat('%', #{deptName}, '%')
 		</if>
@@ -61,6 +64,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectDeptById" parameterType="Long" resultMap="SysDeptResult">
 		<include refid="selectDeptVo"/>
 		where dept_id = #{deptId}
+	</select>
+
+	<select id="selectDeptByName" parameterType="String" resultMap="SysDeptResult">
+		<include refid="selectDeptVo"/>
+		where dept_name = #{deptName}
+	</select>
+
+	<select id="selectDeptByIds" parameterType="java.util.List" resultMap="SysDeptResult">
+		<include refid="selectDeptVo"/>
+		where dept_id in
+		<foreach collection="deptIds" item="deptId" index="index" separator="," open="(" close=")">
+			#{deptId}
+		</foreach>
 	</select>
     
     <select id="checkDeptExistUser" parameterType="Long" resultType="int">

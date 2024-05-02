@@ -60,6 +60,13 @@ public interface ISysDeptService {
     SysDept selectDeptById(Long deptId);
 
     /**
+     * 根据部门Name精确查询信息
+     * @param deptName
+     * @return
+     */
+    SysDept selectDeptByName(String deptName);
+
+    /**
      * 根据ID查询所有子部门（正常状态）
      *
      * @param deptId 部门ID
@@ -97,6 +104,12 @@ public interface ISysDeptService {
      * @param deptId 部门id
      */
     void checkDeptDataScope(Long deptId);
+
+    /**
+     * 校验部门是否有数据权限
+     * @param deptName 部门名称
+     */
+    void checkDeptDataScope(String deptName);
 
     /**
      * 新增保存部门信息

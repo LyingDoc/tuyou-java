@@ -59,6 +59,38 @@ public class SysDeptController extends BaseController {
     }
 
     /**
+     * 根据父部门编号获取下属部门的详细信息
+     */
+    @PreAuthorize("@ss.hasPermi('system:dept:query')")
+    @GetMapping(value = "/listByParentId/{parentDeptId}")
+    public AjaxResult getListByParentId(@PathVariable Long parentDeptId) {
+        deptService.checkDeptDataScope(parentDeptId);
+        SysDept sysDeptQuery = new SysDept();
+        sysDeptQuery.setParentId(parentDeptId);
+        List<SysDept> sysDepts = deptService.selectDeptList(sysDeptQuery);
+        return AjaxResult.success(sysDepts);
+    }
+
+    /**
+     * 根据父部门名称获取下属部门的详细信息
+     * 使用时url中的中文名称需要经过URL编码
+     */
+    @PreAuthorize("@ss.hasPermi('system:dept:query')")
+    @GetMapping(value = "/listByParentName/{parentDeptName}")
+    public AjaxResult getInfoByParentName(@PathVariable String parentDeptName) {
+        deptService.checkDeptDataScope(parentDeptName);
+        // 这里是精确查询.
+        SysDept sysDept = deptService.selectDeptByName(parentDeptName);
+        if (sysDept == null) {
+            return AjaxResult.error("父部门[" + parentDeptName + "]不存在");
+        }
+        SysDept sysDeptQuery = new SysDept();
+        sysDeptQuery.setParentId(sysDept.getDeptId());
+        List<SysDept> sysDepts = deptService.selectDeptList(sysDeptQuery);
+        return AjaxResult.success(sysDepts);
+    }
+
+    /**
      * 新增部门
      */
     @PreAuthorize("@ss.hasPermi('system:dept:add')")
