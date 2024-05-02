@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.form.mapper.FormPageMapper">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="FormPage">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="selectPageOrApi" resultType="com.ruoyi.flow.vo.SelectPageOrApiVO">
+		select form_page_id as fid,concat(description,'[',page_name,']') page_name,description,'0' as parent_id,'page' as type_name,page_name as call_method_code
+		from form_page where deleted=0
+		UNION ALL
+		select form_apiconfig_id,method_name as page_name,remarks as description, page_id as parent_id,'api' as type_name,call_method_code  from form_apiconfig
+	</select>
+
+</mapper>

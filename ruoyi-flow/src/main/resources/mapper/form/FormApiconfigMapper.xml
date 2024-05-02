@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.form.mapper.FormApiconfigMapper">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="FormApiconfig">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<resultMap type="com.ruoyi.flow.form.vo.ApiConfigVO" id="ApiConfigResult">
+		<id     property="formApiconfigId"      column="form_apiconfig_id"      />
+		<result property="methodName"    column="method_name"    />
+		<result property="remarks"     column="remarks"     />
+		<result property="methodType"   column="method_type"   />
+		<result property="methodTypeName"    column="method_type_name"    />
+		<result property="methodCode"      column="method_code"      />
+		<result property="paramConfig"    column="param_config"    />
+		<result property="headList"      column="head_list"      />
+		<result property="pageId"    column="page_id"    />
+		<result property="sqlContent"    column="sqlcontent"    />
+		<result property="apiUrl"      column="api_url"      />
+		<result property="callMethodCode"    column="call_method_code"    />
+		<result property="showCelNames"      column="show_cel_names"      />
+		<result property="showCtrlWhere"    column="show_ctrl_where"    />
+		<result property="dbId"    column="db_id"    />
+	</resultMap>
+	<select id="getApiConfigByCallMethodCode"  resultMap="ApiConfigResult">
+		select ac.*,sc.sqlcontent from form_apiconfig as ac
+		inner join form_sqlcontent  as sc on ac.execute_sql_id=sc.form_sqlcontent_id
+		<where>
+			<if test="methodCode!=null and methodCode!=''">
+				ac.call_method_code=#{methodCode}
+			</if>
+			<if test="fid!=null ">
+				ac.form_apiconfig_id=#{fid}
+			</if>
+		</where>
+		LIMIT 1
+	</select>
+	<select id="queryFormApiconfigList"  resultMap="ApiConfigResult" parameterType="com.ruoyi.flow.form.req.FromApiConfigReq" >
+		select   api.* from form_page p inner join form_apiconfig  api on p.form_page_id=api.page_id
+		where p.page_name=#{fromTableName}
+	</select>
+
+	<select id="queryApiList" resultType="com.ruoyi.flow.form.vo.QueryApiListVO" parameterType="com.ruoyi.flow.form.req.QueryApiListReq">
+		select form_page.page_name,form_page.description,form_apiconfig.f_versions,form_apiconfig.remarks,
+		form_apiconfig.method_type,form_apiconfig.method_name,form_apiconfig.method_code,
+		form_apiconfig.call_method_code,form_apiconfig.form_apiconfig_id,form_apiconfig.page_id
+		from form_apiconfig
+		inner join form_page on form_apiconfig.page_id =form_page.form_page_id
+		where 1=1
+		<if test="pagename!='' and pagename!=null">
+			and form_page.page_name=#{pagename}
+		</if>
+		<if test="description!='' and description!=null">
+			and form_page.description like CONCAT('%',#{description},'%')
+		</if>
+		<if test="methodname!='' and methodname!=null">
+			and form_apiconfig.method_name like CONCAT('%',#{methodname},'%')
+		</if>
+		<if test="methodcode!='' and methodcode!=null">
+			and form_apiconfig.method_code like CONCAT('%',#{methodcode},'%')
+		</if>
+		<if test="methodtype!='' and methodtype!=null">
+			and form_apiconfig.method_type =#{methodtype}
+		</if>
+	</select>
+</mapper>

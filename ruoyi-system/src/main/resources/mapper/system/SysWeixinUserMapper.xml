@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysWeixinUserMapper">
+
+    <sql id="querySql">
+        select <include refid="allField"/>
+        from sys_weixin_user A
+
+    </sql>
+
+    <select id="queryList" resultType="com.ruoyi.system.domain.SysWeixinUser">
+        <include refid="querySql"/>
+        <where>
+            <if test="openId != null and openId != ''">
+                and A.open_id like concat('%', #{openId}, '%')
+            </if>
+            <if test="userId != null and userId != ''">
+                and A.user_id like concat('%', #{userId}, '%')
+            </if>
+        </where>
+        order by A.create_time desc
+    </select>
+
+    <select id="selectSysWeixinUserByWexinId" resultType="com.ruoyi.system.domain.SysWeixinUser">
+        <include refid="querySql"/>
+        where A.wexin_id = #{wexinId}
+    </select>
+
+    <select id="insertSysWeixinUser" parameterType="com.ruoyi.system.domain.SysWeixinUser" >
+        insert into sys_weixin_user(
+        <if test="wexinId != null and wexinId != 0">wexin_id,</if>
+        <if test="openId != null and openId != ''">open_id,</if>
+        <if test="userId != null and userId != ''">user_id,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        create_time
+        )values(
+        <if test="wexinId != null and wexinId != 0">#{wexinId},</if>
+        <if test="openId != null and openId != ''">#{openId},</if>
+        <if test="userId != null and userId != ''">#{userId},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        sysdate()
+        )
+    </select>
+
+    <select id="updateSysWeixinUser" parameterType="com.ruoyi.system.domain.SysWeixinUser">
+        update sys_weixin_user
+        <set>
+            <if test="openId != null and openId != ''">open_id = #{openId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where wexin_id = #{wexinId}
+    </select>
+    <delete id="deleteSysWeixinUserById" parameterType="Long">
+        delete from sys_config where wexin_id = #{wexinId}
+    </delete>
+
+    <delete id="deleteSysWeixinUserByIds" parameterType="Long">
+        delete from sys_weixin_user where wexin_id in
+        <foreach item="wexinId" collection="array" open="(" separator="," close=")">
+            #{wexinId}
+        </foreach>
+    </delete>
+    <sql id="allField">
+        A.wexin_id,
+        A.create_by,
+        A.create_time,
+        A.update_by,
+        A.update_time,
+        A.open_id,
+        A.user_id
+    </sql>
+
+</mapper>

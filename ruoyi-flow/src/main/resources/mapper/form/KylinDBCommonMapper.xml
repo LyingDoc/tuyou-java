@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.form.mapper.KylinDBCommonMapper">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="FormForm">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="getAlltablename" resultType="com.ruoyi.flow.form.vo.KylinTableInfoVO" parameterType="com.ruoyi.flow.form.req.KylinFiledInfoReq">
+		SELECT table_name ,table_comment FROM
+		information_schema.TABLES WHERE table_schema = ( SELECT DATABASE (
+		) )
+
+		<if test="tablename!=null and tablename!=''">
+			and table_name like concat('%', #{tablename}, '%')
+		</if>
+		<if test="tablecomment!=null and tablecomment!=''">
+			and TABLE_COMMENT like concat('%', #{tablecomment}, '%')
+		</if>
+	</select>
+	<select id="getTableColumn" resultType="com.ruoyi.flow.form.vo.KylinFiledInfoVO" parameterType="com.ruoyi.flow.form.req.KylinFiledInfoReq">
+		select table_name ,column_name,column_comment as de_text
+		from information_schema.columns where table_schema = ( SELECT DATABASE (
+		) )
+
+		<if test="tableName!=null and tableName!=''">
+			and table_name like concat('%', #{tableName}, '%')
+		</if>
+		<if test="columnName!=null and columnName!=''">
+			and Column_Name like concat('%', #{columnName}, '%')
+		</if>
+		<if test="columnComment!=null and columnComment!=''">
+			and COLUMN_COMMENT like concat('%', #{columnComment}, '%')
+		</if>
+	</select>
+</mapper>

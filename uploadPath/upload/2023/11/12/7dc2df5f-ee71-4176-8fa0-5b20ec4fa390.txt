@@ -1,0 +1,6 @@
+uat 环境
+http://appuat.mindray.com/Manage/Home/Index?mid=8602e006-4a8a-4479-9979-991aa6fb1810
+账号 mrcn\80001831    !Wdz18588568975
+账号：80001831    !Wdz18588568975
+密码
+http://tfs.mindray.com

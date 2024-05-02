@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.oa.mapper.OaPorcessinsMapper">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="OaPorcessins">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<!--全部流程-->
+	<select id="MyAllPorcessinsList"  resultType="com.ruoyi.flow.oa.entity.OaPorcessinsEntity" parameterType="com.ruoyi.flow.oa.req.QueryPorcessInsListReq">
+		select DISTINCT p.*,dt.actinsid as vactinsid,dt.viewmodel from oa_porcessins p inner join (
+		select oa_porcessins_id  as id,'' as actinsid,case when porcessins_status=1 then 'draft'  else 'start' end as viewmodel,update_date from  oa_porcessins where starter=#{username} or applicantuser=#{username}
+		UNION All
+		select oa_processins_id as id,oa_actins_id as actinsid ,case when (actins_status=1 or actins_status=0) then 'todo' else  'read' end  as viewmodel,update_date from  oa_actins where approversuser=#{username}
+		and actins_status>=0
+		UNION all
+		select  oa_processins_id as id,oa_actins_id as actinsid , case when communicate_status=1 then 'todo' else 'read' end as viewmodel,update_date from oa_actinscommunicate where approversuser=#{username}
+		) as  dt  on dt. id=p.oa_porcessins_id
+		<where>
+			<if test="actName != null and actName != ''">
+				and currentactname like CONCAT('%',#{actName},'%')
+			</if>
+			<if test="approvingUser != null and approvingUser != ''">
+				and currentapproversuser = #{approvingUser}
+			</if>
+			<if test="startUser != null and startUser != ''">
+				and starter = #{startUser}
+			</if>
+			<if test="applicantuser != null and applicantuser != ''">
+				and applicantuser = #{applicantuser}
+			</if>
+			<if test="procInsState != null and procInsState!='' and procInsState!='0'">
+				and porcessins_status = #{procInsState}
+			</if>
+			<if test="procinsname != null and procinsname!=''">
+				and procinsname like CONCAT('%',#{procinsname},'%')
+			</if>
+
+			<if test="procinsno != null and procinsno!=''">
+				and procinsno like CONCAT('%',#{procinsno},'%')
+			</if>
+			<if test="starttimeStart != null and starttimeStart != ''">
+				and #{starttimeStart}  &gt;=starttime
+			</if>
+			<if test="starttimeEnd != null and starttimeEnd != ''">
+				and starttime &lt;= #{starttimeEnd}
+			</if>
+		</where>
+
+		Order by p.update_date desc
+
+	</select>
+	<!--我的待办待阅-->
+	<select id="MyToDoPorcessinsList"  resultType="com.ruoyi.flow.oa.entity.OaPorcessinsEntity" parameterType="com.ruoyi.flow.oa.req.QueryPorcessInsListReq" >
+		select DISTINCT p.*,dt.actinsid as vactinsid,'todo' as viewmodel from oa_porcessins p inner join (
+		select oa_processins_id as id,oa_actins_id as actinsid,update_date  from  oa_actins where approversuser=#{username} and (actins_status=1 or actins_status=0 )   and actins_status>=0
+		UNION all
+		select  oa_processins_id as id,oa_actins_id as actinsid,update_date from oa_actinscommunicate where approversuser=#{username}  and communicate_status=1
+		) as  dt  on dt. id=p.oa_porcessins_id
+		<where>
+			<if test="actName != null and actName != ''">
+				and currentactname like CONCAT('%',#{actName},'%')
+			</if>
+			<if test="approvingUser != null and approvingUser != ''">
+				and currentapproversuser = #{approvingUser}
+			</if>
+			<if test="startUser != null and startUser != ''">
+				and starter = #{startUser}
+			</if>
+			<if test="applicantuser != null and applicantuser != ''">
+				and applicantuser = #{applicantuser}
+			</if>
+			<if test="procInsState != null and procInsState!='' and procInsState!='0'">
+				and porcessins_status = #{procInsState}
+			</if>
+			<if test="procinsname != null and procinsname!=''">
+				and procinsname like CONCAT('%',#{procinsname},'%')
+			</if>
+
+			<if test="procinsno != null and procinsno!=''">
+				and procinsno like CONCAT('%',#{procinsno},'%')
+			</if>
+			<if test="starttimeStart != null and starttimeStart != ''">
+				and #{starttimeStart}  &gt;=starttime
+			</if>
+			<if test="starttimeEnd != null and starttimeEnd != ''">
+				and starttime &lt;= #{starttimeEnd}
+			</if>
+		</where>
+		Order by p.update_date desc
+
+	</select>
+
+	<!--我的待办待阅-->
+	<select id="MyToDoPorcessinsCount"  resultType="java.lang.Integer" parameterType="com.ruoyi.flow.oa.req.QueryPorcessInsListReq" >
+		select COUNT(*) as totalcount from oa_porcessins p inner join (
+		select oa_processins_id as id,oa_actins_id as actinsid,update_date  from  oa_actins where approversuser=#{username} and (actins_status=1 or actins_status=0 )   and actins_status>=0
+		UNION all
+		select  oa_processins_id as id,oa_actins_id as actinsid,update_date from oa_actinscommunicate where approversuser=#{username}  and communicate_status=1
+		) as  dt  on dt. id=p.oa_porcessins_id
+		<where>
+			<if test="actName != null and actName != ''">
+				and currentactname like CONCAT('%',#{actName},'%')
+			</if>
+			<if test="approvingUser != null and approvingUser != ''">
+				and currentapproversuser = #{approvingUser}
+			</if>
+			<if test="startUser != null and startUser != ''">
+				and starter = #{startUser}
+			</if>
+			<if test="applicantuser != null and applicantuser != ''">
+				and applicantuser = #{applicantuser}
+			</if>
+			<if test="procInsState != null and procInsState!='' and procInsState!='0'">
+				and porcessins_status = #{procInsState}
+			</if>
+			<if test="procinsname != null and procinsname!=''">
+				and procinsname like CONCAT('%',#{procinsname},'%')
+			</if>
+
+			<if test="procinsno != null and procinsno!=''">
+				and procinsno like CONCAT('%',#{procinsno},'%')
+			</if>
+			<if test="starttimeStart != null and starttimeStart != ''">
+				and #{starttimeStart}  &gt;=starttime
+			</if>
+			<if test="starttimeEnd != null and starttimeEnd != ''">
+				and starttime &lt;= #{starttimeEnd}
+			</if>
+		</where>
+		Order by p.update_date desc
+
+	</select>
+	<!--我的已办已阅-->
+	<select id="MyReadporcessinsList"  resultType="com.ruoyi.flow.oa.entity.OaPorcessinsEntity" parameterType="com.ruoyi.flow.oa.req.QueryPorcessInsListReq">
+		select DISTINCT p.*,dt.actinsid as vactinsid ,'read' as viewmodel from oa_porcessins p inner join (
+		select oa_processins_id as id,oa_actins_id as actinsid,update_date  from  oa_actins where approversuser=#{username} and actins_status=2
+		UNION all
+		select  oa_processins_id as id,oa_actins_id as actinsid,update_date from oa_actinscommunicate where approversuser=#{username} and communicate_status=2
+		) as  dt  on dt. id=p.oa_porcessins_id
+		<where>
+			<if test="actName != null and actName != ''">
+				and currentactname like CONCAT('%',#{actName},'%')
+			</if>
+			<if test="approvingUser != null and approvingUser != ''">
+				and currentapproversuser = #{approvingUser}
+			</if>
+			<if test="startUser != null and startUser != ''">
+				and starter = #{startUser}
+			</if>
+			<if test="applicantuser != null and applicantuser != ''">
+				and applicantuser = #{applicantuser}
+			</if>
+			<if test="procInsState != null and procInsState!='' and procInsState!='0'">
+				and porcessins_status = #{procInsState}
+			</if>
+			<if test="procinsname != null and procinsname!=''">
+				and procinsname like CONCAT('%',#{procinsname},'%')
+			</if>
+
+			<if test="procinsno != null and procinsno!=''">
+				and procinsno like CONCAT('%',#{procinsno},'%')
+			</if>
+			<if test="starttimeStart != null and starttimeStart != ''">
+				and #{starttimeStart}  &gt;=starttime
+			</if>
+			<if test="starttimeEnd != null and starttimeEnd != ''">
+				and starttime &lt;= #{starttimeEnd}
+			</if>
+		</where>
+		Order by p.update_date desc
+
+	</select>
+	<!--我的草稿-->
+	<select id="MyDraftPorcessinsList"  resultType="com.ruoyi.flow.oa.entity.OaPorcessinsEntity" parameterType="com.ruoyi.flow.oa.req.QueryPorcessInsListReq">
+		select  p.*,'draft' as viewmodel,'' as vactinsid  from oa_porcessins p  where porcessins_status=1 and  ( starter=#{username} or applicantuser=#{username})
+		<if test="actName != null and actName != ''">
+			and currentactname like CONCAT('%',#{actName},'%')
+		</if>
+		<if test="approvingUser != null and approvingUser != ''">
+			and currentapproversuser = #{approvingUser}
+		</if>
+		<if test="startUser != null and startUser != ''">
+			and starter = #{startUser}
+		</if>
+		<if test="applicantuser != null and applicantuser != ''">
+			and applicantuser = #{applicantuser}
+		</if>
+		<if test="procInsState != null and procInsState!='' and procInsState!='0'">
+			and porcessins_status = #{procInsState}
+		</if>
+		<if test="procinsname != null and procinsname!=''">
+			and procinsname like CONCAT('%',#{procinsname},'%')
+		</if>
+
+		<if test="procinsno != null and procinsno!=''">
+			and procinsno like CONCAT('%',#{procinsno},'%')
+		</if>
+		<if test="starttimeStart != null and starttimeStart != ''">
+			and #{starttimeStart}  &gt;=starttime
+		</if>
+		<if test="starttimeEnd != null and starttimeEnd != ''">
+			and starttime &lt;= #{starttimeEnd}
+		</if>
+
+		Order by p.update_date desc
+
+	</select>
+	<!--我的发起-->
+	<select id="MyStartPorcessinsList"  resultType="com.ruoyi.flow.oa.entity.OaPorcessinsEntity" parameterType="com.ruoyi.flow.oa.req.QueryPorcessInsListReq">
+		select  p.*,'start' as viewmodel,'' as vactinsid from oa_porcessins p
+		where porcessins_status!=1 and  ( starter=#{username} or applicantuser=#{username})
+		<if test="actName != null and actName != ''">
+			and currentactname like CONCAT('%',#{actName},'%')
+		</if>
+		<if test="approvingUser != null and approvingUser != ''">
+			and currentapproversuser = #{approvingUser}
+		</if>
+		<if test="startUser != null and startUser != ''">
+			and starter = #{startUser}
+		</if>
+		<if test="applicantuser != null and applicantuser != ''">
+			and applicantuser = #{applicantuser}
+		</if>
+		<if test="procInsState != null and procInsState!='' and procInsState!='0'">
+			and porcessins_status = #{procInsState}
+		</if>
+		<if test="procinsname != null and procinsname!=''">
+			and procinsname like CONCAT('%',#{procinsname},'%')
+		</if>
+
+		<if test="procinsno != null and procinsno!=''">
+			and procinsno like CONCAT('%',#{procinsno},'%')
+		</if>
+		<if test="starttimeStart != null and starttimeStart != ''">
+			and #{starttimeStart}  &gt;=starttime
+		</if>
+		<if test="starttimeEnd != null and starttimeEnd != ''">
+			and starttime &lt;= #{starttimeEnd}
+		</if>
+		Order by p.update_date desc
+
+	</select>
+</mapper>

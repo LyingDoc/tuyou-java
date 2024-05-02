@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="${packageName}.mapper.${ClassName}Mapper">
+
+    <sql id="querySql">
+        select <include refid="allField"/>
+        from ${tableName} A
+
+    </sql>
+
+    <select id="queryList" resultType="${packageName}.${ClassName}">
+        <include refid="querySql"/>
+<where>
+        #foreach ($column in $columns)
+        #if($column.query)
+        #if($column.javaType == 'String')
+        <if test="$column.javaField != null and $column.javaField != ''">
+            and A.${column.columnName} like concat('%', #{$column.javaField}, '%')
+        </if>
+        #else
+        <if test="$column.javaField != null and $column.javaField != 0">
+            and A.${column.columnName} = #{$column.javaField}
+        </if>
+        #end
+        #end
+        #end
+</where>
+        order by A.create_time desc
+    </select>
+
+    <select id="queryById" resultType="${packageName}.${ClassName}">
+        <include refid="querySql"/>
+        where A.id = #{id}
+    </select>
+
+    <sql id="allField">
+        #foreach ($column in $columns)
+        #if($foreach.hasNext)
+        A.${column.columnName},
+        #else
+        A.${column.columnName}
+        #end
+        #end
+    </sql>
+
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.oa.mapper.OaProcauditMapper">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="OaProcess">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="GetProcAudit" resultType="com.ruoyi.flow.oa.entity.OaProcauditEntity">
+		select *from (  	select  actname,ai.approversuser as approversname, null approvelaction,null approveldescr,null actopendate,null actfishdate,1 as iscurrent,ai.arrivaldate,ai.create_date  from oa_actins as ai inner join  oa_act as a on ai.oa_act_id=a.oa_act_id where ai.oa_processins_id=#{fprocinsid} and (ai.actins_status=1 or ai.actins_status=-1)
+
+		union all
+		select actname,approversname,approvelaction,approveldescr,actopendate,actfishdate,0 as iscurrent,null arrivaldate,create_date from oa_procaudit where oa_procins_id=#{fprocinsid}
+		union all
+		select concat(actname,'(待回复)') as actname,approversuser as approversname,'回复沟通' approvelaction,null approveldescr,null actopendate,null actfishdate,1 as iscurrent,create_date as arrivaldate,create_date from oa_actinscommunicate where communicate_status=1 and oa_processins_id=#{fprocinsid}  and communicatetype=5
+		) as datatable       order by create_date desc
+	</select>
+</mapper>

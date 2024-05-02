@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysReadingLikeMapper">
+
+    <sql id="querySql">
+        select <include refid="allField"/>
+        from sys_reading_like A
+
+    </sql>
+
+    <select id="queryList" resultType="com.ruoyi.system.domain.SysReadingLike">
+        <include refid="querySql"/>
+        <where>   <if test="createDate != null and createDate != 0">
+            and A.create_date = #{createDate}
+        </if>
+        <if test="updateDate != null and updateDate != 0">
+            and A.update_date = #{updateDate}
+        </if>
+        <if test="readingLikeType != null and readingLikeType != ''">
+            and A.reading_like_type like concat('%', #{readingLikeType}, '%')
+        </if>
+        <if test="readingLikeUserId != null and readingLikeUserId != ''">
+            and A.reading_like_user_id like concat('%', #{readingLikeUserId}, '%')
+        </if>
+        <if test="readingLinkId != null and readingLinkId != ''">
+            and A.reading_link_id like concat('%', #{readingLinkId}, '%')
+        </if></where>
+        order by A.create_time desc
+    </select>
+
+    <select id="selectSysReadingLikeByReadingLikeId" resultType="com.ruoyi.system.domain.SysReadingLike">
+        <include refid="querySql"/>
+        where A.id = #{id}
+    </select>
+
+    <select id="insertSysReadingLike" parameterType="com.ruoyi.system.domain.SysReadingLike" >
+        insert into sys_reading_like(
+        <if test="readingLikeId != null and readingLikeId != 0">reading_like_id,</if>
+        <if test="readingLikeType != null and readingLikeType != ''">reading_like_type,</if>
+        <if test="readingLikeUserId != null and readingLikeUserId != ''">reading_like_user_id,</if>
+        <if test="readingLinkId != null and readingLinkId != ''">reading_link_id,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        create_time
+        )values(
+        <if test="readingLikeId != null and readingLikeId != 0">#{readingLikeId},</if>
+        <if test="readingLikeType != null and readingLikeType != ''">#{readingLikeType},</if>
+        <if test="readingLikeUserId != null and readingLikeUserId != ''">#{readingLikeUserId},</if>
+        <if test="readingLinkId != null and readingLinkId != ''">#{readingLinkId},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        sysdate()
+        )
+    </select>
+
+    <select id="updateSysReadingLike" parameterType="com.ruoyi.system.domain.SysReadingLike">
+        update sys_reading_like
+        <set>
+            <if test="readingLikeType != null and readingLikeType != ''">reading_like_type = #{readingLikeType},</if>
+            <if test="readingLikeUserId != null and readingLikeUserId != ''">reading_like_user_id = #{readingLikeUserId},</if>
+            <if test="readingLinkId != null and readingLinkId != ''">reading_link_id = #{readingLinkId},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where reading_like_id = #{readingLikeId}
+    </select>
+    <delete id="deleteSysReadingLikeByReadingLikeId" parameterType="Long">
+        delete from sys_reading_like where reading_like_id = #{readingLikeId}
+    </delete>
+
+    <delete id="deleteSysReadingLikeByReadingLikeIds" parameterType="Long">
+        delete from sys_reading_like where reading_like_id in
+        <foreach item="readingLikeId" collection="array" open="(" separator="," close=")">
+            #{readingLikeId}
+        </foreach>
+    </delete>
+    <sql id="allField">
+        A.reading_like_id,
+        A.create_date,
+        A.create_by,
+        A.update_date,
+        A.update_by,
+        A.reading_like_type,
+        A.reading_like_user_id,
+        A.reading_link_id
+    </sql>
+
+
+</mapper>

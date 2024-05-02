@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.oa.mapper.OaProcessMapper">
+
+    <!-- 查询数据
+    <select id="findList" resultType="OaProcess">
+        SELECT ${sqlMap.column.toSql()}
+        FROM ${sqlMap.table.toSql()}
+        <where>
+            ${sqlMap.where.toSql()}
+        </where>
+        ORDER BY ${sqlMap.order.toSql()}
+    </select> -->
+    <select id="getMaxVersionProcess" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity">
+		select oa_process.*from oa_process inner join (
+		select
+		max(f_version) as f_version,process_bid from oa_process where process_bid=#{processBid} and process_state in ('2','4')
+		GROUP BY process_bid
+		) as processdata on processdata.process_bid=oa_process.process_bid and
+		Oa_process.f_version=processdata.f_version
+	</select>
+    <select id="getMaxVersionProcessCode" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity">
+		select oa_process.*from oa_process inner join (
+		select
+		max(f_version) as f_version,process_bid from oa_process where processcode=#{processCode} and process_state in ('2','4')
+		GROUP BY process_bid
+		) as processdata on processdata.process_bid=oa_process.process_bid and
+		oa_process.f_version=processdata.f_version
+	</select>
+    <select id="getStartMaxVersionProcess" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity">
+		select oa_process.*from oa_process inner join (
+		select
+		max(f_version) as f_version,process_bid from oa_process where process_bid=#{processBid}
+		GROUP BY process_bid
+		) as processdata on processdata.process_bid=oa_process.process_bid and
+		Oa_process.f_version=processdata.f_version
+	</select>
+    <select id="getStartMaxVersionProcessCode" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity">
+		select oa_process.*from oa_process inner join (
+		select
+		max(f_version) as f_version,process_bid from oa_process where processcode=#{processCode}
+		GROUP BY process_bid
+		) as processdata on processdata.process_bid=oa_process.process_bid and
+		oa_process.f_version=processdata.f_version
+	</select>
+    <select id="getStartProcess" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity">
+ select Oa_process.*from Oa_process inner join ( select max(f_version)
+ as f_version,process_bid from Oa_process GROUP BY process_bid ) as processdata on processdata.process_bid=Oa_process.process_bid
+ and Oa_process.f_version=processdata.f_version where process_State=2
+    </select>
+    <select id="getProcessChart" resultType="com.ruoyi.flow.oa.vo.ProcessChartVO">
+		 select oa_processchart.flowdata, oa_process.oa_process_id, oa_process.process_state from oa_processchart inner join oa_process on oa_process.oa_process_id=oa_processchart.oa_process_id where oa_processchart.oa_process_id=#{processid}
+	</select>
+    <select id="queryMaxList" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity" parameterType="com.ruoyi.flow.oa.entity.OaProcessEntity"  >
+        select oa_process.*,proc.processtypename from oa_process inner join ( select max(f_version) as
+        f_version,process_bid from oa_process where (process_State=2 or process_State=1 or process_State=3) GROUP BY
+        process_bid ) as processdata on processdata.process_bid=oa_process.process_bid and
+        oa_process.f_version=processdata.f_version inner join oa_processtype as proc on
+        proc.processtypecode=oa_process.processtypecode
+        <where>
+            <if test="processname != null and processname != ''">and processname like CONCAT('',#{processname},'%')</if>
+            <if test="processtypecode != null and processtypecode != ''">and proc.processtypecode = #{processtypecode}
+            </if>
+            <if test="processcode != null and processcode != ''">and processcode like CONCAT('',#{processcode},'%')</if>
+        </where>
+        order by update_date desc
+    </select>
+    <select id="queryAllList" resultType="com.ruoyi.flow.oa.entity.OaProcessEntity"   parameterType="com.ruoyi.flow.oa.entity.OaProcessEntity">
+        select oa_process.*,proc.processtypename from oa_process inner join oa_processtype as proc on
+        proc.processtypecode=oa_process.processtypecode where (process_state=2 or process_state=1 or process_state=3) <if
+            test="processname != null and processname != ''">and processname like CONCAT('',#{processname},'%')
+    </if>
+        <if test="processtypecode != null and processtypecode != ''">and proc.processtypecode = #{processtypecode}</if>
+        <if test="processcode != null and processcode != ''">and processcode like CONCAT('',#{processcode},'%')</if>
+        <if test="version != null">and f_version = #{version}</if> order by update_date desc
+    </select>
+
+</mapper>

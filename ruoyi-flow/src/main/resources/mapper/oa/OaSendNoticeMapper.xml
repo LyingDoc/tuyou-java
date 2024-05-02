@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.oa.mapper.OaSendNoticeMapper">
+	
+	<!-- 查询数据
+	<select id="findList" resultType="OaSendNotice">
+		SELECT ${sqlMap.column.toSql()}
+		FROM ${sqlMap.table.toSql()}
+		<where>
+			${sqlMap.where.toSql()}
+		</where>
+		ORDER BY ${sqlMap.order.toSql()}
+	</select> -->
+	<select id="querySendNotice" resultType="com.ruoyi.flow.oa.vo.QuerySendNoticeVO" parameterType="com.ruoyi.flow.oa.vo.QuerySendNoticeVO">
+		select oa_send_notice.*,oa_temp_notice.temp_name,oa_temp_notice.temp_type from oa_send_notice inner join
+		oa_temp_notice on oa_send_notice.temp_notice_id=oa_temp_notice.temp_id
+		<where>
+			<if test="tempName!=null and tempName!=''">and oa_temp_notice.temp_name like CONCAT('%',#{tempName},'%')
+			</if>
+			<if test="tempType!=null and tempType!=''">and oa_temp_notice.temp_type like CONCAT('%',#{tempType},'%')
+			</if>
+			<if test="processinsName!=null and processinsName!=''">and oa_send_notice.processins_name like
+				CONCAT('%',#{processinsName},'%')
+			</if>
+			<if test="isRead!=null and isRead!=''">and oa_send_notice.is_Read =#{isRead}</if>
+			<if test="sendUserId!=null and sendUserId!=''">and #{sendUserId} like
+				CONCAT('%',oa_send_notice.send_user_id,'%')
+			</if>
+		</where>
+	</select>
+	<select id="getHomeData"  resultType="com.ruoyi.flow.vo.HomeDataVO">
+		  select processins_name as title ,create_date as publishTime,(select count(*) from  oa_send_notice  where 	 send_user_id=#{username}  and  is_read=0) as  to_num  from oa_send_notice 	where send_user_id=#{username}  order by create_date limit  1
+	</select>
+</mapper>

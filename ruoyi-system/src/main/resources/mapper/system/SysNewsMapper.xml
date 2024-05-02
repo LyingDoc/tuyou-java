@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysNewsMapper">
+
+    <sql id="querySql">
+        select <include refid="allField"/>
+        from sys_news A
+    </sql>
+
+    <select id="queryList" resultType="com.ruoyi.system.domain.SysNews">
+        <include refid="querySql"/>
+     <where>   <if test="newsTitle != null and newsTitle != ''">
+            and A.news_title like concat('%', #{newsTitle}, '%')
+        </if>
+        <if test="newsSource != null and newsSource != ''">
+            and A.news_source like concat('%', #{newsSource}, '%')
+        </if>
+        <if test="newsContent != null and newsContent != ''">
+            and A.news_content like concat('%', #{newsContent}, '%')
+        </if>
+        <if test="newsStatus != null and newsStatus != ''">
+            and A.news_status like concat('%', #{newsStatus}, '%')
+        </if>
+        <if test="publishTime != null and publishTime != 0">
+            and A.publish_time = #{publishTime}
+        </if>
+        <if test="newsType != null and newsType != ''">
+            and A.news_type like concat('%', #{newsType}, '%')
+        </if>
+        <if test="themeImg != null and themeImg != ''">
+            and A.theme_img like concat('%', #{themeImg}, '%')
+        </if></where>
+        order by A.create_time desc
+    </select>
+
+    <select id="selectSysNewsByNewsId" resultType="com.ruoyi.system.domain.SysNews">
+        <include refid="querySql"/>
+        where A.news_id = #{id}
+    </select>
+
+    <select id="insertSysNews" parameterType="com.ruoyi.system.domain.SysNews" >
+        insert into sys_news(
+        <if test="newsId != null and newsId != 0">news_id,</if>
+        <if test="newsTitle != null and newsTitle != ''">news_title,</if>
+        <if test="newsSource != null and newsSource != ''">news_source,</if>
+        <if test="newsContent != null and newsContent != ''">news_content,</if>
+        <if test="newsStatus != null and newsStatus != ''">news_status,</if>
+        <if test="publishTime != null and publishTime != ''">publish_time,</if>
+        <if test="newsType != null and newsType != ''">news_type,</if>
+        <if test="themeImg != null and themeImg != ''">theme_img,</if>
+        <if test="userId != null and userId != ''">user_id,</if>
+        <if test="createBy != null and createBy != ''">create_by,</if>
+        create_time
+        )values(
+        <if test="newsId != null and newsId != 0">#{newsId},</if>
+        <if test="newsTitle != null and newsTitle != ''">#{newsTitle},</if>
+        <if test="newsSource != null and newsSource != ''">#{newsSource},</if>
+        <if test="newsContent != null and newsContent != ''">#{newsContent},</if>
+        <if test="newsStatus != null and newsStatus != ''">#{newsStatus},</if>
+        <if test="publishTime != null and publishTime != ''">#{publishTime},</if>
+        <if test="newsType != null and newsType != ''">#{newsType},</if>
+        <if test="themeImg != null and themeImg != ''">#{themeImg},</if>
+        <if test="userId != null and userId != ''">#{userId},</if>
+        <if test="createBy != null and createBy != ''">#{createBy},</if>
+        sysdate()
+        )
+    </select>
+
+        <update id="updateSysNews" parameterType="com.ruoyi.system.domain.SysNews" >
+        update sys_news
+        <set>
+            <if test="newsTitle != null and newsTitle != ''">news_title = #{newsTitle},</if>
+            <if test="newsSource != null and newsSource != ''">news_source = #{newsSource},</if>
+            <if test="newsContent != null and newsContent != ''">news_content = #{newsContent},</if>
+            <if test="newsStatus != null and newsStatus != ''">news_status = #{newsStatus},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="newsType != null and newsType != ''">news_type = #{newsType},</if>
+            <if test="themeImg != null and themeImg != ''">theme_img = #{themeImg},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where news_id = #{newsId}
+    </update>
+    <delete id="deleteSysNewsByNewsId" parameterType="Long">
+        delete from sys_news where news_id = #{newsId} and news_status='0'
+    </delete>
+
+    <select id="getPublishNewList" resultType="com.ruoyi.system.domain.SysNews">
+        select   A.news_id,
+        A.create_by,
+        A.create_time,
+        A.update_by,
+        A.update_time,
+        A.news_title,
+        A.news_source,
+        A.news_status,
+        A.publish_time,
+        A.news_type,
+        A.theme_img from sys_news  as  A  where A.news_status ='1'
+        <if test="newsTitle != null and newsTitle != ''">and news_title like  concat('%', #{newsTitle}, '%') </if>
+         order by A.publish_time desc
+    </select>
+
+    <delete id="deleteSysNewsByNewsIds" parameterType="Long">
+        delete from sys_news where news_id in
+        <foreach item="newsId" collection="array" open="(" separator="," close=")">
+            #{newsId}
+        </foreach>
+        and news_status='0'
+    </delete>
+    <sql id="allField">
+        A.news_id,
+        A.create_by,
+        A.create_time,
+        A.update_by,
+        A.update_time,
+        A.news_title,
+        A.news_source,
+        A.news_content,
+        A.news_status,
+        A.publish_time,
+        A.news_type,
+        A.theme_img
+    </sql>
+<select id="getHomeData" resultType="com.ruoyi.system.vo.HomeDataVO">
+  select  A.news_title as title,   A.publish_time as publish_time, (select COUNT(*) from  sys_news  as  A  where A.news_status ='1')  as to_num from sys_news  as  A  where A.news_status ='1' order by A.publish_time desc limit 1
+</select>
+
+</mapper>

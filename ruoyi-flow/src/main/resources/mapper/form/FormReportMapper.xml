@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.flow.form.mapper.FormReportMapper">
+
+    <sql id="querySql">
+        select <include refid="allField"/>
+        from form_report A
+
+    </sql>
+
+    <select id="queryList" resultType="com.ruoyi.flow.form.entity.FormReport">
+        <include refid="querySql"/>
+<where>
+        <if test="createDate != null and createDate != 0">
+            and A.create_date = #{createDate}
+        </if>
+        <if test="updateDate != null and updateDate != 0">
+            and A.update_date = #{updateDate}
+        </if>
+        <if test="apicode != null and apicode != ''">
+            and A.apicode like concat('%', #{apicode}, '%')
+        </if>
+        <if test="reportJson != null and reportJson != ''">
+            and A.report_json like concat('%', #{reportJson}, '%')
+        </if>
+        <if test="reportName != null and reportName != ''">
+            and A.report_name like concat('%', #{reportName}, '%')
+        </if>
+        <if test="reportDescription != null and reportDescription != ''">
+            and A.report_description like concat('%', #{reportDescription}, '%')
+        </if>
+        <if test="reportCode != null and reportCode != ''">
+            and A.report_code like concat('%', #{reportCode}, '%')
+        </if>
+</where>
+        order by A.create_date desc
+    </select>
+
+    <select id="queryById" resultType="com.ruoyi.flow.form.entity.FormReport">
+        <include refid="querySql"/>
+        where A.id = #{id}
+    </select>
+    <delete id="deleteFormReportByFormReportIds" parameterType="Long">
+        delete from form_report where form_report_id in
+        <foreach collection="array" item="reportid" open="(" separator="," close=")">
+            #{reportid}
+        </foreach>
+    </delete>
+    <sql id="allField">
+        A.form_report_id,
+        A.create_date,
+        A.create_by,
+        A.update_date,
+        A.update_by,
+        A.apicode,
+        A.report_json,
+        A.report_name,
+        A.report_description,
+        A.report_code
+    </sql>
+
+</mapper>
