@@ -10,6 +10,7 @@ public class QueryFromReq {
     private String fromcode;
     private String fremarks;
     private Integer isBuildapi;
+    private Long deptId;
     @ApiModelProperty("分页码")
     private  Integer page;
     @ApiModelProperty("每页行数")

@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ruoyi.common.core.domain.entity.SysDept;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -25,15 +26,14 @@ import com.ruoyi.flow.vo.OnLineFormVO;
 import com.ruoyi.flow.vo.PageVO;
 import com.ruoyi.flow.vo.R;
 import com.ruoyi.flow.form.service.IFormFormService;
+import com.ruoyi.system.mapper.SysDeptMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -57,6 +57,8 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
     SysRoleFlowMapper sysRoleFlowMapper;
     @Autowired
     private SysOaUserServiceImpl sysOaUserService;
+    @Autowired
+    private SysDeptMapper sysDeptMapper;
 
     @Autowired
     private SpringBeanUtils springBeanUtils;
@@ -267,15 +269,15 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
                 case "3":
                     springBeanUtils.getBean(BuildFlowMybatisInterfaceService.class).TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
                     break;
-                case "4":
-                    BuildMybatisInterfaceService buildMybatisInterfaceService=   springBeanUtils.getBean(BuildQuestionnaireMybatisInterfaceService.class);
-                    String miandatabasename= this.getBaseMapper().getMainDatabaseName();
-                    StringBuffer saveInfoSql = new StringBuffer();
-                    saveInfoSql.append("<sql  param=\"$userbusinesscount\"> select count(*) rowcount from `"+miandatabasename+"`.form_question_link where  form_data_id=#{$tableNewId} </sql>");
-                    saveInfoSql.append("<sql test=\"$userbusinesscount==null or $userbusinesscount[0].rowcount==0 \"> insert into `"+miandatabasename+"`.form_question_link(question_link_id,create_by,create_date,update_by,update_date,form_id,form_data_id)values(#{$newid},#{$user.userCode},DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s'),#{$user.userCode},DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s'),#{$fromid},#{$tableNewId})</sql>");
-                    buildMybatisInterfaceService.saveFormInfoSql=saveInfoSql.toString();
-                    buildMybatisInterfaceService.TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
-                    break;
+//                case "4":
+//                    BuildMybatisInterfaceService buildMybatisInterfaceService=   springBeanUtils.getBean(BuildQuestionnaireMybatisInterfaceService.class);
+//                    String miandatabasename= this.getBaseMapper().getMainDatabaseName();
+//                    StringBuffer saveInfoSql = new StringBuffer();
+//                    saveInfoSql.append("<sql  param=\"$userbusinesscount\"> select count(*) rowcount from `"+miandatabasename+"`.form_question_link where  form_data_id=#{$tableNewId} </sql>");
+//                    saveInfoSql.append("<sql test=\"$userbusinesscount==null or $userbusinesscount[0].rowcount==0 \"> insert into `"+miandatabasename+"`.form_question_link(question_link_id,create_by,create_date,update_by,update_date,form_id,form_data_id)values(#{$newid},#{$user.userCode},DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s'),#{$user.userCode},DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s'),#{$fromid},#{$tableNewId})</sql>");
+//                    buildMybatisInterfaceService.saveFormInfoSql=saveInfoSql.toString();
+//                    buildMybatisInterfaceService.TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
+//                    break;
                 default:
                     springBeanUtils.getBean(BuildFormMybatisInterfaceService.class).TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
                     break;
@@ -299,6 +301,9 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
             entity.setFromTableName(param.getFromTableName());
             entity.setIsBuildapi(param.getIsBuildApi() == true ? 1L : 0L);
             entity.setDialogwidth(param.getDialogwidth());
+            // 设置当前登陆用户的deptId
+            Long deptId = SecurityUtils.getDeptId();
+            entity.setDeptId(deptId);
             this.saveOrUpdate(entity);
         } else {
             entity.setUpdateBy(SecurityUtils.getUsername());
@@ -330,6 +335,9 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
         }
         if (StringUtils.isNotEmpty(formFormEntity.getFremarks())) {
             formFormEntityLambdaQueryWrapper.like(FormFormEntity::getFremarks, formFormEntity.getFremarks());
+        }
+        if (Objects.nonNull(formFormEntity.getDeptId())) {
+            formFormEntityLambdaQueryWrapper.eq(FormFormEntity::getDeptId, formFormEntity.getDeptId());
         }
         return R.newOk(this.getBaseMapper().selectList(formFormEntityLambdaQueryWrapper));
     }
@@ -398,6 +406,7 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
         int rows = req.getRows();
         PageHelper.startPage(page, rows);
         List<QueryFromVO> list = this.baseMapper.queryFromList(req);
+        populateDeptName(list);
         PageInfo pageInfo = new PageInfo(list);
         return R.newOk(list, (int) pageInfo.getTotal());
     }
@@ -407,9 +416,35 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
         int rows = req.getRows();
         PageHelper.startPage(page, rows);
         List<QueryFromVO> list = this.baseMapper.queryFromDesignList(req);
+        populateDeptName(list);
         PageInfo pageInfo = new PageInfo(list);
         return R.newOk(list, (int) pageInfo.getTotal());
     }
+
+    /**
+     * 封装deptName
+     *
+     * @param list
+     */
+    private void populateDeptName(List<QueryFromVO> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        List<Long> deptIds = list.stream().map(QueryFromVO::getDeptId).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(deptIds)) {
+            return;
+        }
+        List<SysDept> sysDepts = sysDeptMapper.selectDeptByIds(deptIds);
+        if (CollectionUtils.isEmpty(sysDepts)) {
+            return;
+        }
+        Map<Long, String> idToNameMapping = sysDepts.stream().collect(Collectors.toMap(SysDept::getDeptId, SysDept::getDeptName));
+        list.forEach((QueryFromVO vo) -> {
+            vo.setDeptName(idToNameMapping.get(vo.getDeptId()));
+        });
+
+    }
+
     @Override
     public void clearFromCache() {
         OnLineFormUtils.clearOnLineFormCache();

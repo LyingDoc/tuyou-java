@@ -18,4 +18,6 @@ public class QueryFromVO {
     private String fromTableName;
     private Boolean isBuildapi;
     private String fromdesignjson;
+    private Long deptId;
+    private String deptName;
 }

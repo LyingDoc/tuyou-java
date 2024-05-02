@@ -13,22 +13,24 @@
 	</select> -->
 	<select id="queryFromList" resultType="com.ruoyi.flow.form.vo.QueryFromVO" parameterType="com.ruoyi.flow.form.req.QueryFromReq">
 		select form_form_id, create_date, create_by, update_date, update_by, FromName, FromCode, FRemarks,
-		from_table_name,is_buildapi from form_form where relevance_form_id is null
+		from_table_name,is_buildapi,dept_id from form_form where relevance_form_id is null
 		<if test="fromname!=null and fromname!=''"> and fromname like CONCAT('%',#{fromname},'%') </if>
 		<if test="fromtype!=null and fromtype!=''"> and fromtype=#{fromtype} </if>
 		<if test="fromcode!=null and fromcode!=''"> and FromCode like CONCAT('%',#{fromcode},'%') </if>
 		<if test="fremarks!=null and fremarks!=''"> and FRemarks like CONCAT('%',#{fremarks},'%') </if>
 		<if test="isBuildapi!=null "> and is_buildapi = #{isBuildapi} </if>
+		<if test="deptId!=null"> and dept_id = #{deptId} </if>
      order by update_date desc
 	</select>
 	<select id="queryFromDesignList" resultType="com.ruoyi.flow.form.vo.QueryFromVO" parameterType="com.ruoyi.flow.form.req.QueryFromReq">
 		select form_form_id, create_date, create_by, update_date, update_by, FromName, FromCode, FRemarks,
-		from_table_name,is_buildapi,fromdesignjson from form_form where relevance_form_id is null
+		from_table_name,is_buildapi,fromdesignjson,dept_id from form_form where relevance_form_id is null
 		<if test="fromname!=null and fromname!=''"> and fromname like CONCAT('%',#{fromname},'%') </if>
 		<if test="fromtype!=null and fromtype!=''"> and fromtype=#{fromtype} </if>
 		<if test="fromcode!=null and fromcode!=''"> and FromCode like CONCAT('%',#{fromcode},'%') </if>
 		<if test="fremarks!=null and fremarks!=''"> and FRemarks like CONCAT('%',#{fremarks},'%') </if>
 		<if test="isBuildapi!=null "> and is_buildapi = #{isBuildapi} </if>
+		<if test="deptId!=null"> and dept_id = #{deptId} </if>
 		order by update_date desc
 	</select>
 	<select id="getMainDatabaseName" resultType="java.lang.String">

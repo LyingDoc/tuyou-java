@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.flow.comm.SpringBeanUtils;
 import com.ruoyi.flow.form.req.*;
 import com.ruoyi.flow.form.vo.ApiConfigVO;
@@ -153,13 +154,22 @@ public class FormFormController extends BaseController {
     @PostMapping("queryFromList")
     @ResponseBody
     public R<List<QueryFromVO>> queryFromList(@RequestBody QueryFromReq req) {
-
+        // 超级管理员能查询全部表单数据，否则只能查询当前部门的表单...
+        boolean admin = SecurityUtils.isAdmin(SecurityUtils.getUserId());
+        if (!admin) {
+            // todo 后面可能会修改
+            req.setDeptId(SecurityUtils.getDeptId());
+        }
         return formFormService.queryFromList(req);
     }
     @PostMapping("queryFromDesignList")
     @ResponseBody
     public R<List<QueryFromVO>> queryFromDesignList(@RequestBody QueryFromReq req) {
-
+        // 超级管理员能查询全部表单数据，否则只能查询当前部门的表单...
+        boolean admin = SecurityUtils.isAdmin(SecurityUtils.getUserId());
+        if (!admin) {
+            req.setDeptId(SecurityUtils.getDeptId());
+        }
         return formFormService.queryFromDesignList(req);
     }
     @Log(title = "表单信息", businessType = BusinessType.DELETE)

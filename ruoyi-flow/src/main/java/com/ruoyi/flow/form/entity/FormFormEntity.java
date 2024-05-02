@@ -136,4 +136,10 @@ public class FormFormEntity extends Model<FormFormEntity> {
      */
     @ApiModelProperty("表单形象图")
     private String formimgurl;
+
+    /**
+     * 报表的部门id
+     */
+    @ApiModelProperty("报表部门id")
+    private Long deptId;
 }
