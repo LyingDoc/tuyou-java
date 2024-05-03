@@ -16,6 +16,10 @@ import java.util.List;
 public class FromSaveInfoReq {
     @ApiModelProperty("fromID")
     private  String id;
+    @NotEmpty(message = "表单关联部门ID不能为空")
+    @NotBlank(message = "表单关联部门ID不能为空")
+    @ApiModelProperty("表单关联部门ID")
+    private  Long deptId;
     @NotEmpty(message = "表单名称不能为空")
     @NotBlank(message = "表单名称不能为空")
     @ApiModelProperty("表单名称")

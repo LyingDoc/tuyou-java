@@ -157,7 +157,6 @@ public class FormFormController extends BaseController {
         // 超级管理员能查询全部表单数据，否则只能查询当前部门的表单...
         boolean admin = SecurityUtils.isAdmin(SecurityUtils.getUserId());
         if (!admin) {
-            // todo 后面可能会修改
             req.setDeptId(SecurityUtils.getDeptId());
         }
         return formFormService.queryFromList(req);

@@ -258,7 +258,7 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
     @Transactional
     public R<String> SaveFromData(FromSaveInfoReq param) {
         FormFormEntity entity = this.getById(param.getId());
-        if (true == param.getIsBuildApi()) {
+        if (param.getIsBuildApi()) {
             switch (param.getFromtype()) {
                 case "1":
                     springBeanUtils.getBean(BuildFormMybatisInterfaceService.class).TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
@@ -269,15 +269,6 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
                 case "3":
                     springBeanUtils.getBean(BuildFlowMybatisInterfaceService.class).TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
                     break;
-//                case "4":
-//                    BuildMybatisInterfaceService buildMybatisInterfaceService=   springBeanUtils.getBean(BuildQuestionnaireMybatisInterfaceService.class);
-//                    String miandatabasename= this.getBaseMapper().getMainDatabaseName();
-//                    StringBuffer saveInfoSql = new StringBuffer();
-//                    saveInfoSql.append("<sql  param=\"$userbusinesscount\"> select count(*) rowcount from `"+miandatabasename+"`.form_question_link where  form_data_id=#{$tableNewId} </sql>");
-//                    saveInfoSql.append("<sql test=\"$userbusinesscount==null or $userbusinesscount[0].rowcount==0 \"> insert into `"+miandatabasename+"`.form_question_link(question_link_id,create_by,create_date,update_by,update_date,form_id,form_data_id)values(#{$newid},#{$user.userCode},DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s'),#{$user.userCode},DATE_FORMAT(now(),'%Y-%m-%d %H:%i:%s'),#{$fromid},#{$tableNewId})</sql>");
-//                    buildMybatisInterfaceService.saveFormInfoSql=saveInfoSql.toString();
-//                    buildMybatisInterfaceService.TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
-//                    break;
                 default:
                     springBeanUtils.getBean(BuildFormMybatisInterfaceService.class).TableEidt(param.getFromdesignjson(), param.getFromTableName(), param.getQueryWhere(), param.getFromsavelogic());
                     break;
@@ -299,11 +290,10 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
             entity.setFromname(param.getFromName());
             entity.setFromcode(param.getFromCode());
             entity.setFromTableName(param.getFromTableName());
-            entity.setIsBuildapi(param.getIsBuildApi() == true ? 1L : 0L);
+            entity.setIsBuildapi(param.getIsBuildApi() ? 1L : 0L);
             entity.setDialogwidth(param.getDialogwidth());
             // 设置当前登陆用户的deptId
-            Long deptId = SecurityUtils.getDeptId();
-            entity.setDeptId(deptId);
+            entity.setDeptId(param.getDeptId());
             this.saveOrUpdate(entity);
         } else {
             entity.setUpdateBy(SecurityUtils.getUsername());
@@ -315,8 +305,9 @@ public class FormFormServiceImpl extends ServiceImpl<FormFormMapper, FormFormEnt
             entity.setFromname(param.getFromName());
             entity.setFromcode(param.getFromCode());
             entity.setFromTableName(param.getFromTableName());
-            entity.setIsBuildapi(param.getIsBuildApi() == true ? 1L : 0L);
+            entity.setIsBuildapi(param.getIsBuildApi() ? 1L : 0L);
             entity.setDialogwidth(param.getDialogwidth());
+            entity.setDeptId(param.getDeptId());
             this.updateById(entity);
         }
         OnLineFormUtils.removeOnLineFormCache(entity.getFormFormId());

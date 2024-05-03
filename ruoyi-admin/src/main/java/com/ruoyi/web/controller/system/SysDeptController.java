@@ -54,7 +54,6 @@ public class SysDeptController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:dept:query')")
     @GetMapping(value = "/{deptId}")
     public AjaxResult getInfo(@PathVariable Long deptId) {
-        deptService.checkDeptDataScope(deptId);
         return AjaxResult.success(deptService.selectDeptById(deptId));
     }
 
@@ -64,31 +63,12 @@ public class SysDeptController extends BaseController {
     @PreAuthorize("@ss.hasPermi('system:dept:query')")
     @GetMapping(value = "/listByParentId/{parentDeptId}")
     public AjaxResult getListByParentId(@PathVariable Long parentDeptId) {
-        deptService.checkDeptDataScope(parentDeptId);
         SysDept sysDeptQuery = new SysDept();
         sysDeptQuery.setParentId(parentDeptId);
         List<SysDept> sysDepts = deptService.selectDeptList(sysDeptQuery);
         return AjaxResult.success(sysDepts);
     }
 
-    /**
-     * 根据父部门名称获取下属部门的详细信息
-     * 使用时url中的中文名称需要经过URL编码
-     */
-    @PreAuthorize("@ss.hasPermi('system:dept:query')")
-    @GetMapping(value = "/listByParentName/{parentDeptName}")
-    public AjaxResult getInfoByParentName(@PathVariable String parentDeptName) {
-        deptService.checkDeptDataScope(parentDeptName);
-        // 这里是精确查询.
-        SysDept sysDept = deptService.selectDeptByName(parentDeptName);
-        if (sysDept == null) {
-            return AjaxResult.error("父部门[" + parentDeptName + "]不存在");
-        }
-        SysDept sysDeptQuery = new SysDept();
-        sysDeptQuery.setParentId(sysDept.getDeptId());
-        List<SysDept> sysDepts = deptService.selectDeptList(sysDeptQuery);
-        return AjaxResult.success(sysDepts);
-    }
 
     /**
      * 新增部门
@@ -112,7 +92,6 @@ public class SysDeptController extends BaseController {
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody SysDept dept) {
         Long deptId = dept.getDeptId();
-        deptService.checkDeptDataScope(deptId);
         if (UserConstants.NOT_UNIQUE.equals(deptService.checkDeptNameUnique(dept))) {
             return AjaxResult.error("修改部门'" + dept.getDeptName() + "'失败，部门名称已存在");
         } else if (dept.getParentId().equals(deptId)) {
@@ -137,7 +116,6 @@ public class SysDeptController extends BaseController {
         if (deptService.checkDeptExistUser(deptId)) {
             return AjaxResult.error("部门存在用户,不允许删除");
         }
-        deptService.checkDeptDataScope(deptId);
         return toAjax(deptService.deleteDeptById(deptId));
     }
 }
